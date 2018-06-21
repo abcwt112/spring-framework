@@ -210,8 +210,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 						logger.debug("Could not resolve target class for bean with name '" + beanName + "'", ex);
 					}
 				}
-				if (beanType != null && isHandler(beanType)) {
-					detectHandlerMethods(beanName);
+				if (beanType != null && isHandler(beanType)) { // isHandler判断bean和bean的父类上有没有@Controller或者@RequestMapping注解
+					detectHandlerMethods(beanName); // 查找controller里面的handlerMethod
 				}
 			}
 		}
@@ -225,14 +225,14 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	protected void detectHandlerMethods(final Object handler) {
 		Class<?> handlerType = (handler instanceof String ?
 				getApplicationContext().getType((String) handler) : handler.getClass());
-		final Class<?> userType = ClassUtils.getUserClass(handlerType);
+		final Class<?> userType = ClassUtils.getUserClass(handlerType); // 或者用户定义的Controller class,因为handlerType可能会被aop代理,给你的可能是子类性
 
-		Map<Method, T> methods = MethodIntrospector.selectMethods(userType,
+		Map<Method, T> methods = MethodIntrospector.selectMethods(userType, // 对controller里的每个RequestMapping方法执行getMappingForMethod
 				new MethodIntrospector.MetadataLookup<T>() {
 					@Override
 					public T inspect(Method method) {
 						try {
-							return getMappingForMethod(method, userType);
+							return getMappingForMethod(method, userType); // 为RequestMapping方法创建对应的RequestMappingInfo,里面包含匹配的条件
 						}
 						catch (Throwable ex) {
 							throw new IllegalStateException("Invalid mapping on handler class [" +
@@ -245,8 +245,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 			logger.debug(methods.size() + " request handler methods found on " + userType + ": " + methods);
 		}
 		for (Map.Entry<Method, T> entry : methods.entrySet()) {
-			Method invocableMethod = AopUtils.selectInvocableMethod(entry.getKey(), userType);
-			T mapping = entry.getValue();
+			Method invocableMethod = AopUtils.selectInvocableMethod(entry.getKey(), userType); // controller里的方法
+			T mapping = entry.getValue(); // RequestMappingInfo
 			registerHandlerMethod(handler, invocableMethod, mapping);
 		}
 	}
@@ -536,20 +536,20 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 		public void register(T mapping, Object handler, Method method) {
 			this.readWriteLock.writeLock().lock();
 			try {
-				HandlerMethod handlerMethod = createHandlerMethod(handler, method);
+				HandlerMethod handlerMethod = createHandlerMethod(handler, method); // 根据controller.class和Method创建HandlerMethod
 				assertUniqueMethodMapping(handlerMethod, mapping);
 
 				if (logger.isInfoEnabled()) {
 					logger.info("Mapped \"" + mapping + "\" onto " + handlerMethod);
 				}
-				this.mappingLookup.put(mapping, handlerMethod);
+				this.mappingLookup.put(mapping, handlerMethod); // key=RequestMappingInfo value=HandlerMethod
 
 				List<String> directUrls = getDirectUrls(mapping);
 				for (String url : directUrls) {
-					this.urlLookup.add(url, mapping);
+					this.urlLookup.add(url, mapping); // key=URL value=RequestMappingInfo
 				}
 
-				String name = null;
+				String name = null; // HelloCOntroller.hello() -> HC#hello
 				if (getNamingStrategy() != null) {
 					name = getNamingStrategy().getName(handlerMethod, mapping);
 					addMappingName(name, handlerMethod);

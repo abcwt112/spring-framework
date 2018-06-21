@@ -54,13 +54,13 @@ public abstract class MethodIntrospector {
 	public static <T> Map<Method, T> selectMethods(Class<?> targetType, final MetadataLookup<T> metadataLookup) {
 		final Map<Method, T> methodMap = new LinkedHashMap<Method, T>();
 		Set<Class<?>> handlerTypes = new LinkedHashSet<Class<?>>();
-		Class<?> specificHandlerType = null;
+		Class<?> specificHandlerType = null; // 不是JDK动态代理的时候回有值
 
 		if (!Proxy.isProxyClass(targetType)) {
 			handlerTypes.add(targetType);
 			specificHandlerType = targetType;
 		}
-		handlerTypes.addAll(Arrays.asList(targetType.getInterfaces()));
+		handlerTypes.addAll(Arrays.asList(targetType.getInterfaces())); // 当前要查找method的类和类的接口都放进去
 
 		for (Class<?> currentHandlerType : handlerTypes) {
 			final Class<?> targetClass = (specificHandlerType != null ? specificHandlerType : currentHandlerType);
@@ -77,7 +77,7 @@ public abstract class MethodIntrospector {
 						}
 					}
 				}
-			}, ReflectionUtils.USER_DECLARED_METHODS);
+			}, ReflectionUtils.USER_DECLARED_METHODS); // ReflectionUtils.USER_DECLARED_METHODS过滤掉不是Object并且不是Object里定义的方法
 		}
 
 		return methodMap;
