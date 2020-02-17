@@ -460,7 +460,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		// Prepare method overrides.
+		//
 		try {
+			// 这个bean的方法是不是要代理,对方法增强
 			mbdToUse.prepareMethodOverrides();
 		}
 		catch (BeanDefinitionValidationException ex) {
@@ -470,7 +472,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		try {
 			// Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
-			// ibp.postProcessBeforeInstantiation 和 ibp.postProcessAfterInitialization
+			// ibp.postProcessBeforeInstantiation 和 beanProcessor.postProcessAfterInitialization
 			Object bean = resolveBeforeInstantiation(beanName, mbdToUse);
 			if (bean != null) {
 				return bean;
@@ -559,6 +561,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		if (earlySingletonExposure) {
+			// 这里不会把singletonFactories remove掉,丢到earlySingletonObjects中,注意false
 			Object earlySingletonReference = getSingleton(beanName, false);
 			if (earlySingletonReference != null) {
 				if (exposedObject == bean) {
@@ -1018,6 +1021,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 					"Bean class isn't public, and non-public access not allowed: " + beanClass.getName());
 		}
 
+		// 工厂方法初始化bean
 		if (mbd.getFactoryMethodName() != null)  {
 			return instantiateUsingFactoryMethod(beanName, mbd, args);
 		}
@@ -1038,6 +1042,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				return autowireConstructor(beanName, mbd, null, null);
 			}
 			else {
+				// 实例化bean有2种InstantiationStrategy策略 ,simple和cglibsubclassing
 				return instantiateBean(beanName, mbd);
 			}
 		}
@@ -1148,6 +1153,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	}
 
 	/**
+	 * 1.InstantiationAwareBeanPostProcessor.postProcessAfterInstantiation
+	 * 2.byType,byName
+	 * 3.InstantiationAwareBeanPostProcessor.postProcessPropertyValues 校验属性
+	 * 4.applyPropertyValues -> beanWrapper
 	 * Populate the bean instance in the given BeanWrapper with the property values
 	 * from the bean definition.
 	 * @param beanName the name of the bean
@@ -1200,6 +1209,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 			// Add property values based on autowire by type if applicable.
 			if (mbd.getResolvedAutowireMode() == RootBeanDefinition.AUTOWIRE_BY_TYPE) {
+				// type->beanname beanname - type
 				autowireByType(beanName, mbd, bw, newPvs);
 			}
 
@@ -1539,6 +1549,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 
 	/**
+	 * 1.invokeAwareMethods
+	 * 2.BeanPostProcessorsBeforeInitialization
+	 * 3.invokeInitMethods
+	 * 4.BeanPostProcessorsAfterInitialization
 	 * Initialize the given bean instance, applying factory callbacks
 	 * as well as init methods and bean post processors.
 	 * <p>Called from {@link #createBean} for traditionally defined beans,

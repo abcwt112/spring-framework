@@ -220,6 +220,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 				if (logger.isDebugEnabled()) {
 					logger.debug("Creating shared instance of singleton bean '" + beanName + "'");
 				}
+				// singletonsCurrentlyInCreation.add 标记正在创建当前的bean
 				beforeSingletonCreation(beanName);
 				boolean newSingleton = false;
 				boolean recordSuppressedExceptions = (this.suppressedExceptions == null);
@@ -250,9 +251,11 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					if (recordSuppressedExceptions) {
 						this.suppressedExceptions = null;
 					}
+					// singletonsCurrentlyInCreation.remove
 					afterSingletonCreation(beanName);
 				}
 				if (newSingleton) {
+					// 创建完singleton以后丢到singletonObjects里,清除其他map
 					addSingleton(beanName, singletonObject);
 				}
 			}
