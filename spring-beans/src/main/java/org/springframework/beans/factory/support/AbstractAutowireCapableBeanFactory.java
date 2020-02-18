@@ -1237,6 +1237,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			}
 		}
 
+		// 使用spel
 		applyPropertyValues(beanName, mbd, bw, pvs);
 	}
 

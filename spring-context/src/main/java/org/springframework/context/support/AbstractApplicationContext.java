@@ -496,6 +496,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 			// Prepare the bean factory for use in this context.
 			// spel
+			// PropertyEditorRegistrar
 			// BF忽略Aware接口,用自己的BPP来注入这些对象
 			// 指定特殊autowired对象
 			// 注入特殊的bean,systemProps,env等
