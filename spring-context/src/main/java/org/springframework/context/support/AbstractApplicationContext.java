@@ -536,6 +536,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				finishBeanFactoryInitialization(beanFactory);
 
 				// Last step: publish corresponding event.
+				// initLifecycleProcessor
+				// Lifecycle.start
+				// publish ContextRefreshedEvent, ApplicationEventListerner会监听到事件
 				finishRefresh();
 			}
 
