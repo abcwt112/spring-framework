@@ -67,6 +67,7 @@ class PostProcessorRegistrationDelegate {
 					new LinkedList<BeanDefinitionRegistryPostProcessor>();
 
 			for (BeanFactoryPostProcessor postProcessor : beanFactoryPostProcessors) {
+				// 特殊的BeanDefinitionRegistryPostProcessor的,比如处理@configuration.注册bd
 				if (postProcessor instanceof BeanDefinitionRegistryPostProcessor) {
 					BeanDefinitionRegistryPostProcessor registryPostProcessor =
 							(BeanDefinitionRegistryPostProcessor) postProcessor;

@@ -504,12 +504,17 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 			try {
 				// Allows post-processing of the bean factory in context subclasses.
+				// template method留给子类实现,比如servletContextAware
 				postProcessBeanFactory(beanFactory);
 
 				// Invoke factory processors registered as beans in the context.
+				// 处理模板方法注册的BeanDefinitionRegistryPostProcessor 特殊的BeanDefinitionRegistryPostProcessor,比如处理@configuration.注册bd
+				// 处理BeanDefinitionRegistryPostProcessor (PriorityOrdered > Ordered > rest)
+				// 处理BeanFactoryPostProcessors ,顺序同上
 				invokeBeanFactoryPostProcessors(beanFactory);
 
 				// Register bean processors that intercept bean creation.
+				// 同上,注册BeanPostProcessors
 				registerBeanPostProcessors(beanFactory);
 
 				// Initialize message source for this context.
