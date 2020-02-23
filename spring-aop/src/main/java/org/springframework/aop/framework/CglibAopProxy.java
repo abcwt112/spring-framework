@@ -949,4 +949,42 @@ class CglibAopProxy implements AopProxy, Serializable {
 		}
 	}
 
+	static class A {
+		public static void main(String[] args) {
+			Enhancer e = new Enhancer();
+			e.setSuperclass(A.class);
+			e.setCallback(new MyMethodInterceptor());
+
+			A o = (A)e.create();
+			o.f2();
+		}
+
+		public void f1() {
+			System.out.println("f1");
+		}
+
+		public void f2() {
+			System.out.println("F2");
+			f1();
+		}
+
+		static class MyMethodInterceptor implements MethodInterceptor {
+
+			@Override
+			public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
+				if(!method.getName().contains("f")) {
+					return method.invoke(o,objects);
+				}
+				System.out.println("before");
+				// 这里如果是invoke的话就无线打印before了.
+				Object invoke = methodProxy.invokeSuper(o, objects);
+//				Object invoke = method.invoke(o, objects);
+
+				System.out.println("after");
+				return invoke;
+			}
+		}
+	}
+
+
 }
