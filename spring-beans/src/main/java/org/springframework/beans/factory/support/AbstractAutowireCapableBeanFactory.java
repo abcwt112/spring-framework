@@ -484,6 +484,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		// 不用ibd的话就正常create bean
+		// 正常创建bean.包括new, populate 属性, bpp相应方法
 		Object beanInstance = doCreateBean(beanName, mbdToUse, args);
 		if (logger.isDebugEnabled()) {
 			logger.debug("Finished creating instance of bean '" + beanName + "'");
@@ -548,6 +549,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		try {
 			populateBean(beanName, mbd, instanceWrapper);
 			if (exposedObject != null) {
+				// BeanNameAware等aware方法
+				// bpp before
+				// afterPropertiesSet 再 init-method
+				// bpp after
 				exposedObject = initializeBean(beanName, exposedObject, mbd);
 			}
 		}
@@ -1590,6 +1595,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		try {
+			// 先 afterPropertiesSet 再 init-method
 			invokeInitMethods(beanName, wrappedBean, mbd);
 		}
 		catch (Throwable ex) {

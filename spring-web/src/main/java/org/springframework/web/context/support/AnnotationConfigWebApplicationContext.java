@@ -98,7 +98,7 @@ public class AnnotationConfigWebApplicationContext extends AbstractRefreshableWe
 	 * @see AnnotatedBeanDefinitionReader#setBeanNameGenerator
 	 * @see ClassPathBeanDefinitionScanner#setBeanNameGenerator
 	 */
-	public void setBeanNameGenerator(BeanNameGenerator beanNameGenerator) {
+	public void setBeanNameGenerator(BeanNameGenerator contextbeanNameGenerator) {
 		this.beanNameGenerator = beanNameGenerator;
 	}
 
